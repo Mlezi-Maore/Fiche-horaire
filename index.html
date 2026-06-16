@@ -378,10 +378,11 @@
 <div class="toolbar">
   <button class="btn primary" id="btnSend">Générer le PDF + envoyer au Sheet</button>
   <button class="btn" id="btnPrint">Imprimer seul</button>
-  <button class="btn" id="btnExport">Exporter les données</button>
-  <button class="btn" id="btnImport">Importer des données</button>
+  <button class="btn" id="btnTemplate">Template CSV</button>
+  <button class="btn" id="btnExport">Exporter en CSV</button>
+  <button class="btn" id="btnImport">Importer CSV</button>
   <button class="btn ghost" id="btnReset">Réinitialiser</button>
-  <input type="file" id="fileInput" accept="application/json" hidden>
+  <input type="file" id="fileInput" accept=".csv" hidden>
 </div>
 <div id="toast"></div>
 
@@ -742,28 +743,113 @@ $("btnReset").addEventListener("click",()=>{
   state.days={};state.manual={hs:"",recup:""};render();
 });
 $("btnExport").addEventListener("click",()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  // Export CSV : grille jour par jour
+  const lines=["Jour,Date,Prise de poste,Fin de poste,Pause (h),Total (h),Repas,Motif,Horaire prévu (h)"];
+  const weeks=buildWeeks();
+  weeks.forEach(week=>{
+    week.forEach(date=>{
+      const key=iso(date);
+      const d=getDay(key);
+      const dow=DOW[date.getDay()];
+      const tot=dayTotal(d);
+      const fields=[
+        dow,
+        key,
+        d.start||"",
+        d.end||"",
+        d.pause||"",
+        tot?tot.toFixed(2):"",
+        d.repas||"",
+        d.motif||"",
+        d.prevu||""
+      ];
+      lines.push(fields.map(f=>{
+        const s=String(f).trim();
+        return s.includes(",")?'"'+s.replace(/"/g,'""')+'"':s;
+      }).join(","));
+    });
+  });
+  const csv=lines.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
   const a=document.createElement("a");
   const slug=(state.meta.libelle||"releve").replace(/\s+/g,"_");
-  a.href=URL.createObjectURL(blob);a.download="releve_"+slug+".json";a.click();
+  a.href=URL.createObjectURL(blob);a.download="releve_"+slug+".csv";a.click();
   URL.revokeObjectURL(a.href);
 });
+
 $("btnImport").addEventListener("click",()=>$("fileInput").click());
 $("fileInput").addEventListener("change",e=>{
   const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
   r.onload=()=>{
     try{
-      const data=JSON.parse(r.result);
-      if(!data.meta||!data.days)throw new Error("structure");
-      state.meta=Object.assign(state.meta,data.meta);
-      state.days=data.days||{};
-      state.manual=Object.assign({hs:"",recup:""},data.manual||{});
+      const lines=r.result.trim().split("\n");
+      if(lines.length<2)throw new Error("CSV vide");
+      const header=lines[0].split(",").map(h=>h.trim());
+      // Retrouver les indices des colonnes
+      const idx={
+        date:header.indexOf("Date"),start:header.indexOf("Prise de poste"),
+        end:header.indexOf("Fin de poste"),pause:header.indexOf("Pause (h)"),
+        repas:header.indexOf("Repas"),motif:header.indexOf("Motif"),
+        prevu:header.indexOf("Horaire prévu (h)")
+      };
+      if(idx.date===-1)throw new Error("Colonne 'Date' manquante");
+      state.days={};
+      for(let i=1;i<lines.length;i++){
+        const cells=parseCSVLine(lines[i]);
+        const key=cells[idx.date];
+        if(!key||!key.match(/^\d{4}-\d{2}-\d{2}$/))continue;
+        const d={
+          start:cells[idx.start]||"",
+          end:cells[idx.end]||"",
+          pause:Number(cells[idx.pause])||0,
+          repas:Number(cells[idx.repas])||0,
+          motif:cells[idx.motif]||"",
+          prevu:cells[idx.prevu]||""
+        };
+        state.days[key]=d;
+      }
       render();
-    }catch(err){alert("Fichier illisible : ce n'est pas un export de relevé valide.");}
+      toast("CSV importé : "+Object.keys(state.days).length+" jours chargés.");
+    }catch(err){alert("Erreur CSV : "+err.message);}
     e.target.value="";
   };
   r.readAsText(file);
+});
+
+// Parser CSV avec support guillemets
+function parseCSVLine(line){
+  const cells=[];let current="";let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQuotes&&line[i+1]==='"'){current+='"';i++;}
+      else inQuotes=!inQuotes;
+    }else if(ch===","&&!inQuotes){cells.push(current.trim());current="";}
+    else current+=ch;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+// Template CSV vierge
+$("btnTemplate").addEventListener("click",()=>{
+  const lines=["Jour,Date,Prise de poste,Fin de poste,Pause (h),Total (h),Repas,Motif,Horaire prévu (h)"];
+  const weeks=buildWeeks();
+  weeks.forEach(week=>{
+    week.forEach(date=>{
+      const key=iso(date);
+      const dow=DOW[date.getDay()];
+      lines.push([dow,key,"","","","","","",""].join(","));
+    });
+  });
+  const csv=lines.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  const slug=(state.meta.libelle||"releve").replace(/\s+/g,"_");
+  a.href=URL.createObjectURL(blob);a.download="template_"+slug+".csv";a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Template CSV généré pour la période "+state.meta.debut+" → "+state.meta.fin);
 });
 
 // ---- Init ----
