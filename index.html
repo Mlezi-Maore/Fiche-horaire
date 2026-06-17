@@ -3,185 +3,906 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Maquette — Fiche horaire</title>
+<title>Relevé mensuel d'heures</title>
 <style>
   :root{
+    /* === Charte Mlezi Maore === */
     --mlezi:#c8102e;
     --mlezi-dark:#9d0c24;
     --mlezi-soft:#fbe7ea;
+    --accent:var(--mlezi);
+    --accent-soft:var(--mlezi-soft);
     --ink:#1f2933;
     --ink-soft:#5a6672;
     --paper:#ffffff;
     --app:#f1f2f0;
-    --rule:#e2e6ea;
-    --rule-strong:#c4cbd2;
-    --ok:#1f7a4d;
-    --ok-soft:#e4f3ea;
+    --rule:#d9dee3;
+    --rule-strong:#b9c1c9;
     --warn:#b8860b;
     --warn-soft:#fbf3df;
     --err:#b3261e;
     --err-soft:#fbe7e5;
-    --sun:#fdf6f7;
+    --ok:#1f7a4d;
+    --ok-soft:#e4f3ea;
+    --sun:#fff7f8;
     --week:#f5f7f8;
+    --radius:8px;
+    --mono:"SFMono-Regular",ui-monospace,"Cascadia Mono","Segoe UI Mono",Menlo,Consolas,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  }
-  *{box-sizing:border-box}
+  }  *{box-sizing:border-box}
   html,body{margin:0}
-  body{font-family:var(--sans);color:var(--ink);background:var(--app);line-height:1.45;-webkit-font-smoothing:antialiased;padding:24px 16px 60px}
-  .demo-tag{max-width:980px;margin:0 auto 12px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mlezi);font-weight:700}
-  .sheet{max-width:980px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-radius:8px;box-shadow:0 1px 2px rgba(31,41,51,.06),0 10px 34px rgba(31,41,51,.07);overflow:hidden}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:var(--app);
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 16px 80px;
+  }
+  .sheet{
+    max-width:1080px;margin:0 auto;background:var(--paper);
+    border:1px solid var(--rule);border-radius:var(--radius);
+    box-shadow:0 1px 2px rgba(28,43,58,.06),0 8px 30px rgba(28,43,58,.06);
+    overflow:hidden;
+  }
 
-  .band{background:var(--ink);color:#fff;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
-  .band .left{display:flex;align-items:center;gap:16px}
-  .logo{width:42px;height:42px;border-radius:9px;background:var(--mlezi);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;font-style:italic;flex:none}
-  .band h1{font-size:18px;font-weight:650;margin:0;letter-spacing:.04em}
-  .band .sub{font-size:12px;color:#b7c2cd;margin-top:2px}
-  .band .periodlabel{text-align:right;font-size:12px;color:#cdd6df}
-  .band .periodlabel strong{display:block;color:#fff;font-size:15px;margin-top:2px}
+  /* ---- Bandeau institutionnel Mlezi ---- */
+  .band{
+    background:#fff;
+    color:var(--ink);
+    padding:18px 28px 16px;
+    border-top:8px solid var(--mlezi);
+    border-bottom:1px solid var(--rule);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:18px}
+  .brand img{width:150px;height:auto;display:block;flex:none}
+  .brand-text{border-left:1px solid var(--rule-strong);padding-left:18px}
+  .band h1{
+    font-size:20px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink);
+  }
+  .band .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;letter-spacing:.02em}
+  .band .periodlabel{font-size:12px;color:var(--ink-soft);text-align:right}
+  .band .periodlabel strong{display:block;color:var(--mlezi);font-size:16px;letter-spacing:.06em;margin-top:2px;font-weight:700}
 
-  .pad{padding:18px 28px}
-  .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+  /* ---- Sections ---- */
+  .pad{padding:20px 28px}
+  .eyebrow{
+    font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);
+    font-weight:650;margin:0 0 12px;display:flex;align-items:center;gap:10px;
+  }
   .eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
-  .grid-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 18px}
+
+  .grid-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 20px}
   .field{display:flex;flex-direction:column;gap:4px}
-  .field label{font-size:10.5px;color:var(--ink-soft);font-weight:600}
-  .field .v{font-size:14px;padding:7px 10px;border:1px solid var(--rule-strong);border-radius:6px;background:#fff;font-weight:500}
-  .field .v.pill{color:var(--mlezi);border-color:var(--mlezi);background:var(--mlezi-soft);font-weight:650}
+  .field label{font-size:11px;color:var(--ink-soft);font-weight:600;letter-spacing:.02em}
+  .field input{
+    font:inherit;font-size:14px;color:var(--ink);padding:7px 9px;
+    border:1px solid var(--rule-strong);border-radius:5px;background:#fff;width:100%;
+  }
+  .field input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+  .field.num input{font-variant-numeric:tabular-nums;text-align:right}
+  .span2{grid-column:span 2}
 
-  .wrap{overflow-x:auto;border-top:1px solid var(--rule)}
-  table{border-collapse:collapse;width:100%;font-size:13px;min-width:720px}
-  thead th{background:#f6f7f8;color:var(--ink-soft);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:9px 10px;border-bottom:2px solid var(--rule-strong);white-space:nowrap}
+  /* ---- Tableau quotidien ---- */
+  .tablewrap{overflow-x:auto;border-top:1px solid var(--rule)}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  thead th{
+    background:#f7f8f9;color:var(--ink-soft);font-weight:600;font-size:10.5px;
+    text-transform:uppercase;letter-spacing:.05em;text-align:left;
+    padding:9px 8px;border-bottom:1.5px solid var(--rule-strong);white-space:nowrap;position:sticky;top:0;z-index:2;
+  }
   thead th.n{text-align:right}
-  tbody td{padding:7px 10px;border-bottom:1px solid var(--rule)}
-  td.n{text-align:right;font-variant-numeric:tabular-nums}
-  .dow{display:inline-block;width:16px;color:var(--ink-soft);font-weight:700}
+  tbody td{padding:0;border-bottom:1px solid var(--rule);vertical-align:middle}
+  tbody td .cellpad{padding:3px 6px}
+  .daycell{white-space:nowrap;font-weight:600;padding:6px 10px;color:var(--ink);min-width:64px}
+  .daycell .dow{display:inline-block;width:16px;color:var(--ink-soft);font-weight:700}
+  tr.sun .daycell .dow{color:var(--err)}
   tr.sun{background:var(--sun)}
-  tr.sun .dow{color:var(--mlezi)}
-  td.tot{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
-  .motif{font-size:12px;color:var(--ink-soft)}
-  .chip{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:4px}
-  .chip.ca{background:var(--ok-soft);color:var(--ok)}
-  .chip.form{background:var(--warn-soft);color:var(--warn)}
-  tr.subtotal td{background:var(--week);font-weight:650;font-size:11.5px;border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
-  tr.subtotal .lbl{text-transform:uppercase;letter-spacing:.04em;font-size:10.5px;color:var(--ink-soft)}
-  tr.month td{background:var(--ink);color:#fff;font-weight:650;font-size:13px;padding:11px 10px}
-  tr.month td.n{font-size:15px}
-  tr.month .lbl{text-transform:uppercase;letter-spacing:.08em;font-size:10.5px}
+  tr.day:hover{background:#fafbfc}
+  td input,td select{
+    font:inherit;font-size:13px;border:1px solid transparent;background:transparent;
+    width:100%;padding:6px 7px;border-radius:4px;color:var(--ink);
+  }
+  td input:hover,td select:hover{border-color:var(--rule)}
+  td input:focus,td select:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 2px var(--accent-soft)}
+  td.num input{font-variant-numeric:tabular-nums;text-align:right}
+  td.total{font-variant-numeric:tabular-nums;text-align:right;font-weight:650;padding:6px 12px;white-space:nowrap}
+  td.total.neg{color:var(--err);background:var(--err-soft)}
+  td.warn{background:var(--warn-soft)}
+  .colday{width:70px}.coltime{width:104px}.colpause{width:86px}.coltot{width:78px}
+  .colrepas{width:74px}.colmotif{width:190px}.colprevu{width:96px}
 
-  .status{padding:12px 28px;font-size:13px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);background:var(--warn-soft)}
-  .status .head{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--warn)}
-  .status .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
-  .status ul{margin:0;padding-left:22px;color:var(--ink)}
-  .status li{margin:3px 0}
-  .status li b{color:var(--mlezi-dark)}
+  tr.subtotal td{
+    background:var(--week);font-weight:650;border-top:1px solid var(--rule-strong);
+    border-bottom:1px solid var(--rule-strong);font-size:12px;color:var(--ink);
+    padding:7px 8px;font-variant-numeric:tabular-nums;
+  }
+  tr.subtotal .lbl{color:var(--ink-soft);font-weight:600;letter-spacing:.04em;font-size:11px;text-transform:uppercase}
+  tr.subtotal td.num{text-align:right;padding-right:12px}
 
-  .recap-zone{display:grid;grid-template-columns:1.4fr 1fr;border-top:1px solid var(--rule)}
-  .recap{padding:18px 28px;border-right:1px solid var(--rule)}
-  .recap table{min-width:0;width:100%}
-  .recap td{border:none;padding:5px 2px;font-size:12.5px}
+  tr.month td{
+    background:var(--ink);color:#fff;font-weight:650;padding:11px 8px;font-size:13px;
+    font-variant-numeric:tabular-nums;letter-spacing:.03em;
+  }
+  tr.month td.num{text-align:right;padding-right:12px;font-size:15px}
+  tr.month .lbl{text-transform:uppercase;letter-spacing:.1em;font-size:11px}
+
+  /* ---- Récap + écart ---- */
+  .recap-zone{display:grid;grid-template-columns:1.4fr 1fr;gap:0;border-top:1px solid var(--rule)}
+  .recap{padding:20px 28px;border-right:1px solid var(--rule)}
+  .recap table{width:100%}
+  .recap td{border:none;padding:6px 4px;font-size:13px}
   .recap td.k{color:var(--ink-soft)}
-  .recap td.v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;width:80px}
-  .tag{font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:5px}
-  .tag.auto{background:var(--mlezi-soft);color:var(--mlezi-dark)}
-  .tag.man{background:#eef0f2;color:var(--ink-soft)}
-  .balance{padding:20px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center;background:#fafbfc}
-  .brow{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink-soft)}
-  .brow .big{font-variant-numeric:tabular-nums;font-weight:700;font-size:17px;color:var(--ink)}
-  .ecart{border-top:1px dashed var(--rule-strong);padding-top:12px}
-  .ecart .big{font-size:22px;color:var(--ok)}
-  .pill2{font-size:10.5px;font-weight:650;padding:3px 9px;border-radius:999px;background:var(--ok-soft);color:var(--ok)}
+  .recap td.v{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;width:90px;white-space:nowrap}
+  .recap input{
+    width:78px;text-align:right;font-variant-numeric:tabular-nums;font:inherit;font-size:13px;
+    border:1px solid var(--rule-strong);border-radius:4px;padding:4px 6px;font-weight:650;
+  }
+  .recap input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  .tagauto,.tagman{font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:6px;vertical-align:middle}
+  .tagauto{background:var(--accent-soft);color:var(--accent)}
+  .tagman{background:#eef0f2;color:var(--ink-soft)}
 
-  .toolbar{display:flex;gap:10px;align-items:center;padding:14px 28px;border-top:1px solid var(--rule);background:#fafbfc;flex-wrap:wrap}
-  .btn{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--rule-strong);background:#fff;color:var(--ink);padding:9px 16px;border-radius:6px}
+  .balance{padding:24px 28px;display:flex;flex-direction:column;gap:14px;justify-content:center;background:#fbfcfc}
+  .brow{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-soft)}
+  .brow .big{font-variant-numeric:tabular-nums;font-weight:700;font-size:18px;color:var(--ink)}
+  .ecart{border-top:1px dashed var(--rule-strong);padding-top:14px}
+  .ecart .big{font-size:24px}
+  .ecart.ok .big{color:var(--ok)}
+  .ecart.off .big{color:var(--warn)}
+  .pill{font-size:11px;font-weight:650;padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+  .pill.ok{background:var(--accent-soft);color:var(--accent)}
+  .pill.off{background:var(--warn-soft);color:var(--warn)}
+
+  /* ---- Statut / contrôles ---- */
+  .status{
+    margin:0;padding:11px 28px;font-size:12.5px;display:flex;align-items:center;gap:8px;
+    border-top:1px solid var(--rule);
+  }
+  .status.clean{background:var(--accent-soft);color:var(--accent)}
+  .status.dirty{background:var(--warn-soft);color:var(--warn)}
+  .status .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+  .status ul{margin:4px 0 0;padding-left:18px;font-size:12px;color:var(--err)}
+
+  /* ---- Signatures ---- */
+  .signs{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding:26px 28px;border-top:1px solid var(--rule)}
+  .sign{font-size:12px;color:var(--ink-soft)}
+  .sign .line{height:54px;border-bottom:1px solid var(--rule-strong);margin-top:6px}
+  .sign .cap{margin-top:6px;font-weight:600}
+
+  /* ---- Légende ---- */
+  .legend{padding:14px 28px;border-top:1px solid var(--rule);font-size:11px;color:var(--ink-soft);display:flex;gap:18px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+
+  /* ---- Pied de page institutionnel ---- */
+  .legal-footer{
+    border-top:1px solid var(--rule);
+    padding:14px 28px;
+    font-size:11px;
+    color:var(--ink-soft);
+    background:#fafbfc;
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .legal-footer strong{color:var(--ink)}
+
+  /* ---- Barre d'outils ---- */
+  .toolbar{
+    position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(8px);border-top:1px solid var(--rule-strong);
+    display:flex;gap:10px;justify-content:center;align-items:center;padding:12px 16px;z-index:50;flex-wrap:wrap;
+  }
+  .btn{
+    font:inherit;font-size:13px;font-weight:600;border:1px solid var(--rule-strong);
+    background:#fff;color:var(--ink);padding:9px 16px;border-radius:6px;cursor:pointer;
+  }
+  .btn:hover{border-color:var(--mlezi);color:var(--mlezi)}
   .btn.primary{background:var(--mlezi);color:#fff;border-color:var(--mlezi)}
+  .btn.primary:hover{background:var(--mlezi-dark);color:#fff}
   .btn.ghost{border-color:transparent;color:var(--ink-soft)}
+  #toast{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:60;
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;
+    max-width:520px;box-shadow:0 6px 24px rgba(18,51,60,.28);opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.err{background:var(--err)}
+
+  @media (max-width:760px){
+    .grid-meta{grid-template-columns:1fr 1fr}
+    .span2{grid-column:span 2}
+    .recap-zone{grid-template-columns:1fr}
+    .recap{border-right:none;border-bottom:1px solid var(--rule)}
+    .signs{grid-template-columns:1fr}
+    body{padding:12px 8px 90px}
+    .pad,.recap,.balance,.signs,.legend,.status,.legal-footer{padding-left:16px;padding-right:16px}
+    .band{padding:16px}
+    .brand img{width:120px}
+    .brand-text{padding-left:14px}
+  }
+
+  /* ---- Impression ---- */
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body{background:#fff;padding:0;margin:0}
+    .toolbar,#toast,.legend{display:none}
+    .sheet{box-shadow:none;border:none;max-width:none;margin:0;border-radius:0}
+
+    /* Page 1 : récap consolidé uniquement */
+    .for-details,.pad:not(:first-of-type){display:none}
+    .for-recap{display:block !important}
+
+    /* Optimiser la page 1 (récap) */
+    .band{-webkit-print-color-adjust:exact;print-color-adjust:exact;margin:0;padding:8mm 10mm;border-top:5mm solid var(--mlezi);border-bottom:1px solid #ddd}
+    .band h1{font-size:18px}
+    .band .sub{font-size:11px}
+    .band .periodlabel strong{font-size:14px}
+
+    .recap-zone{display:grid !important;grid-template-columns:1.3fr 1.2fr;gap:0;border:none;margin:0}
+    .recap{padding:10mm;border-right:1px solid #ccc;border-bottom:none}
+    .recap table{width:100%;font-size:11px;margin:0}
+    .recap td{padding:3px 2px;border:none}
+    .recap td.k{font-weight:600;color:#000}
+    .recap td.v{text-align:right;font-weight:700}
+
+    .balance{padding:10mm;background:#fff;border:none;display:flex;flex-direction:column;justify-content:space-around}
+    .brow{font-size:11px;margin:2px 0}
+    .brow .big{font-size:16px}
+    .ecart .big{font-size:20px}
+
+    .signs{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm;padding:8mm 10mm;margin-top:8mm}
+    .sign{font-size:10px}
+    .sign .line{height:40px}
+
+    /* Pages 2+ : détails (grille jour par jour) */
+    @page :nth(n+2){
+      .for-recap,.band,.pad:first-of-type{display:none !important}
+      .for-details{display:block !important}
+    }
+
+    .for-details{width:100%;margin:0;border:none}
+    thead th{position:static;background:#f0f0f0;font-size:9px;padding:4px 3px;border:1px solid #999;font-weight:700;text-transform:uppercase}
+    tbody td{font-size:9px;padding:2px 3px;border:1px solid #ddd;vertical-align:middle}
+    .daycell{padding:3px 4px;font-weight:600;font-size:9px}
+    .daycell .dow{font-weight:700}
+    tr.sun{background:#f9f6f0}
+    tr.day{background:#fff}
+    tr.subtotal{background:#e8e8e8;font-weight:600;font-size:9px}
+    tr.month{background:#333;color:#fff;font-weight:700;font-size:10px}
+
+    td input,td select,.field input{border:none !important;background:transparent !important;padding:0 !important;font:inherit}
+    td.total{text-align:right;font-weight:700}
+    .colday{width:45px}
+    .coltime{width:55px}
+    .colpause{width:45px}
+    .coltot{width:45px}
+    .colrepas{width:35px}
+    .colmotif{width:80px;font-size:8px}
+    .colprevu{width:45px}
+
+    /* Éviter les coupures de lignes */
+    tr{page-break-inside:avoid}
+    tr.subtotal,tr.month{page-break-after:avoid}
+
+    /* Contraste renforcé à l'impression */
+    .band{color:#000}
+    .band h1{color:#000;text-shadow:none}
+    .band .periodlabel strong{color:var(--mlezi);text-shadow:none}
+    body,table{color:#000}
+  }
+
 </style>
 </head>
 <body>
-<div class="demo-tag">Maquette de démonstration — données fictives</div>
-<div class="sheet">
+<div class="sheet" id="sheet">
 
   <div class="band">
-    <div class="left">
-      <div class="logo">M</div>
-      <div>
+    <div class="brand">
+      <img src="assets/logo-mlezi.png" alt="Mlezi Maore">
+      <div class="brand-text">
         <h1>Relevé mensuel d'heures</h1>
-        <div class="sub">Mlezi Maore — fiche commune à tous les services</div>
+        <div class="sub" id="bandsub">Période de paie — service insertion</div>
       </div>
     </div>
-    <div class="periodlabel">Période<strong>Février 2026</strong></div>
-  </div>
-
-  <div class="pad">
-    <p class="eyebrow">Salarié et régime</p>
-    <div class="grid-meta">
-      <div class="field"><label>Nom · Prénom</label><span class="v">M'COLO DIRI Assoumany</span></div>
-      <div class="field"><label>Secteur</label><span class="v">Insertion</span></div>
-      <div class="field"><label>Service</label><span class="v pill">SIAE — Maraîchage</span></div>
-      <div class="field"><label>Régime horaire</label><span class="v pill">Cycle 35h</span></div>
+    <div class="periodlabel">
+      Période
+      <strong id="bandperiode">—</strong>
     </div>
   </div>
 
-  <div class="wrap">
-    <table>
+  <!-- Identité + période -->
+  <div class="pad">
+    <p class="eyebrow">Salarié et période</p>
+    <div class="grid-meta">
+      <div class="field"><label>Nom</label><input id="m_nom" placeholder="NOM"></div>
+      <div class="field"><label>Prénom</label><input id="m_prenom" placeholder="Prénom"></div>
+      <div class="field"><label>Service</label><input id="m_service" placeholder="ex. SIAE"></div>
+      <div class="field"><label>Emploi</label><input id="m_emploi" placeholder="ex. Salarié ACI pépinière"></div>
+
+      <div class="field"><label>Libellé du mois</label><input id="m_libelle" placeholder="ex. JANVIER 2026"></div>
+      <div class="field"><label>Début de période</label><input id="m_debut" type="date"></div>
+      <div class="field"><label>Fin de période</label><input id="m_fin" type="date"></div>
+      <div class="field num"><label>Heures prévues au contrat</label><input id="m_contrat" type="number" step="0.01" placeholder="151,67"></div>
+    </div>
+  </div>
+
+  <!-- Grille — pour impression page 2+ -->
+  <div class="tablewrap for-details">
+    <table id="grid">
       <thead>
-        <tr><th>Jour</th><th>Prise</th><th>Fin</th><th class="n">Pause</th><th class="n">Total</th><th class="n">Repas</th><th>Motif</th></tr>
+        <tr>
+          <th class="colday">Jour</th>
+          <th class="coltime">Prise de poste</th>
+          <th class="coltime">Fin de poste</th>
+          <th class="colpause n">Pause (h)</th>
+          <th class="coltot n">Total</th>
+          <th class="colrepas n">Repas</th>
+          <th class="colmotif">Motif</th>
+          <th class="colprevu n">Horaire prévu*</th>
+        </tr>
       </thead>
-      <tbody>
-        <tr><td><span class="dow">L</span> 02</td><td>9:00</td><td>15:00</td><td class="n">1</td><td class="tot">5</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr><td><span class="dow">M</span> 03</td><td>7:00</td><td>15:00</td><td class="n">1</td><td class="tot">7</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr><td><span class="dow">M</span> 04</td><td>—</td><td>—</td><td class="n">—</td><td class="tot">0</td><td class="n">—</td><td><span class="chip form">Formation</span></td></tr>
-        <tr><td><span class="dow">J</span> 05</td><td>7:00</td><td>15:00</td><td class="n">1</td><td class="tot">7</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr><td><span class="dow">V</span> 06</td><td>7:00</td><td>15:00</td><td class="n">1</td><td class="tot">7</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr class="sun"><td><span class="dow">S</span> 07</td><td>—</td><td>—</td><td class="n">—</td><td class="tot">0</td><td class="n">—</td><td class="motif">Repos</td></tr>
-        <tr class="sun"><td><span class="dow">D</span> 08</td><td>—</td><td>—</td><td class="n">—</td><td class="tot">0</td><td class="n">—</td><td class="motif">Repos</td></tr>
-        <tr class="subtotal"><td class="lbl">Sous-total semaine 5</td><td></td><td></td><td></td><td class="n">26</td><td class="n">4</td><td></td></tr>
-        <tr><td><span class="dow">L</span> 09</td><td>7:00</td><td>17:00</td><td class="n">1</td><td class="tot">9</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr><td><span class="dow">M</span> 10</td><td>7:00</td><td>15:00</td><td class="n">1</td><td class="tot">7</td><td class="n">1</td><td class="motif">Travaillé</td></tr>
-        <tr class="subtotal"><td class="lbl">… (semaines suivantes)</td><td></td><td></td><td></td><td class="n">…</td><td class="n">…</td><td></td></tr>
-        <tr class="month"><td class="lbl" colspan="4">Total du mois</td><td class="n">147</td><td class="n">19</td><td></td></tr>
-      </tbody>
+      <tbody id="rows"></tbody>
     </table>
   </div>
 
-  <div class="status">
-    <div class="head"><span class="dot"></span>2 points à vérifier — règles de l'accord d'entreprise</div>
-    <ul>
-      <li>Lundi 09 : amplitude de <b>9 h travaillées</b> — proche du plafond quotidien de 10 h (accord art. 1-8).</li>
-      <li>Repos entre vendredi 06 (fin 15:00) et lundi 09 (prise 7:00) : conforme — <b>repos hebdomadaire ≥ 35 h respecté</b>.</li>
-    </ul>
+  <!-- Statut contrôles — page 1 et 2+ -->
+  <div class="status clean for-details" id="status">
+    <span class="dot"></span><span id="statusmsg">Aucune incohérence détectée.</span>
   </div>
 
-  <div class="recap-zone">
+  <!-- Récap + écart — page 1 -->
+  <div class="recap-zone for-recap">
     <div class="recap">
-      <p class="eyebrow">Récapitulatif (variables de paie)</p>
+      <p class="eyebrow">Récapitulatif (Observation)</p>
       <table>
-        <tr><td class="k">CA — congés annuels <span class="tag auto">auto</span></td><td class="v">0 j</td></tr>
-        <tr><td class="k">HS à payer <span class="tag man">manuel</span></td><td class="v">0 h</td></tr>
-        <tr><td class="k">Récup acquise <span class="tag auto">auto</span></td><td class="v">0 h</td></tr>
-        <tr><td class="k">Absences (heures) <span class="tag auto">auto</span></td><td class="v">0 h</td></tr>
-        <tr><td class="k">Heures de dimanche <span class="tag auto">auto</span></td><td class="v">0 h</td></tr>
-        <tr><td class="k">Formation <span class="tag auto">auto</span></td><td class="v">1 j</td></tr>
-        <tr><td class="k">Repas avec bénéficiaires <span class="tag auto">auto</span></td><td class="v">19</td></tr>
+        <tr><td class="k">CA — congés annuels <span class="tagauto">auto</span><span style="font-size:11px"> (jours ouvrables)</span></td><td class="v" id="r_ca">0</td></tr>
+        <tr><td class="k">HS à payer <span class="tagman">manuel</span><span style="font-size:11px"> (heures)</span></td><td class="v"><input id="r_hs" type="number" step="0.25" placeholder="0"></td></tr>
+        <tr><td class="k">Récup <span class="tagman">manuel</span><span style="font-size:11px"> (heures + ou −)</span></td><td class="v"><input id="r_recup" type="number" step="0.25" placeholder="0"></td></tr>
+        <tr><td class="k">Absences <span class="tagauto">auto</span><span style="font-size:11px"> (heures, sur horaire prévu)</span></td><td class="v" id="r_abs">0</td></tr>
+        <tr><td class="k">Congés sans solde <span class="tagauto">auto</span><span style="font-size:11px"> (jours)</span></td><td class="v" id="r_css">0</td></tr>
+        <tr><td class="k">Heures de dimanche <span class="tagauto">auto</span></td><td class="v" id="r_dim">0</td></tr>
+        <tr><td class="k">Heures de fériés travaillées <span class="tagauto">auto</span></td><td class="v" id="r_fer">0</td></tr>
+        <tr><td class="k">AM / AT <span class="tagauto">auto</span><span style="font-size:11px"> (jours)</span></td><td class="v" id="r_amat">0</td></tr>
+        <tr><td class="k">Congés exceptionnels** <span class="tagauto">auto</span><span style="font-size:11px"> (jours)</span></td><td class="v" id="r_cex">0</td></tr>
+        <tr><td class="k">Repas avec bénéficiaires <span class="tagauto">auto</span><span style="font-size:11px"> (nombre)</span></td><td class="v" id="r_repas">0</td></tr>
       </table>
     </div>
+
     <div class="balance">
-      <div class="brow"><span>Total mois</span><span class="big">147 h</span></div>
-      <div class="brow"><span>Réf. cycle (35 h × sem.)</span><span class="big">≈ 151 h</span></div>
-      <div class="ecart">
-        <div class="brow"><span>Position dans le cycle</span><span class="pill2">dans la moyenne</span></div>
-        <div class="brow"><span></span><span class="big">solde au cycle</span></div>
+      <div class="brow"><span>Total heures du mois</span><span class="big" id="b_total">0</span></div>
+      <div class="brow"><span>Heures prévues au contrat</span><span class="big" id="b_contrat">0</span></div>
+      <div class="ecart ok" id="ecartbox">
+        <div class="brow">
+          <span>Écart au contrat</span>
+          <span class="pill ok" id="ecartpill">à l'équilibre</span>
+        </div>
+        <div class="brow"><span></span><span class="big" id="b_ecart">0</span></div>
       </div>
     </div>
   </div>
 
-  <div class="toolbar">
-    <button class="btn primary">Générer le PDF + envoyer</button>
-    <button class="btn">Template CSV</button>
-    <button class="btn">Importer CSV</button>
-    <button class="btn ghost">Réinitialiser</button>
+  <!-- Signatures -->
+  <div class="signs">
+    <div class="sign">Date<div class="line"></div><div class="cap">Établi le</div></div>
+    <div class="sign">Signature du salarié<div class="line"></div><div class="cap">Le salarié</div></div>
+    <div class="sign">Signature N+1<div class="line"></div><div class="cap">Validation hiérarchique / cachet</div></div>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--sun)"></i> Dimanche</span>
+    <span><i style="background:var(--week)"></i> Sous-total hebdomadaire</span>
+    <span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i> À vérifier</span>
+    <span><i style="background:var(--err-soft);border:1px solid var(--err)"></i> Incohérence</span>
+    <span>* Horaire prévu : à renseigner sur les jours d'absence (maladie / AT) pour le décompte. ** Justificatif à présenter.</span>
+  </div>
+
+  <div class="legal-footer">
+    <div>
+      <strong>Mlezi Maore</strong>, une association du GROUPE SOS<br>
+      3, rue Leclerc — 97600 Mamoudzou
+    </div>
+    <div>
+      Tél. : 02 69 61 64 00 — secretariat@mlezi-maore.com<br>
+      www.mlezi-maore.com
+    </div>
   </div>
 
 </div>
+
+<div class="toolbar">
+  <button class="btn primary" id="btnSend">Générer le PDF + envoyer au Sheet</button>
+  <button class="btn" id="btnPrint">Imprimer seul</button>
+  <button class="btn" id="btnTemplate">Template CSV</button>
+  <button class="btn" id="btnExport">Exporter en CSV</button>
+  <button class="btn" id="btnImport">Importer CSV</button>
+  <button class="btn ghost" id="btnReset">Réinitialiser</button>
+  <input type="file" id="fileInput" accept=".csv" hidden>
+</div>
+<div id="toast"></div>
+
+<script>
+"use strict";
+
+const MOTIFS = [
+  {v:"",      l:"Travaillé"},
+  {v:"CA",    l:"Congé annuel"},
+  {v:"MAL",   l:"Maladie"},
+  {v:"AT",    l:"Accident du travail"},
+  {v:"FER",   l:"Jour férié"},
+  {v:"RECUP", l:"Récup / repos compensateur"},
+  {v:"FORM",  l:"Formation"},
+  {v:"OFF",   l:"Journée off"},
+  {v:"MLEZI", l:"Semaine Mlezi"},
+  {v:"CSS",   l:"Congé sans solde"},
+  {v:"CEX",   l:"Congé exceptionnel"},
+  {v:"AUTRE", l:"Autre"},
+];
+const DOW = ["D","L","M","M","J","V","S"]; // 0=dimanche
+const FMT = new Intl.NumberFormat("fr-FR",{minimumFractionDigits:0,maximumFractionDigits:2});
+
+// ====================================================================
+//  ENVOI VERS LE GOOGLE SHEET
+//  Coller ici l'URL /exec du web app Apps Script (voir Code.gs).
+//  Tant que c'est vide, le bouton « envoyer » l'indiquera.
+// ====================================================================
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx0N57E-vyWXNpgHc_4saudKH7X82mI0-kfZiZq8i2rZKYEA95rl404hnBCxC_JG75-4Q/exec";
+
+// ---- État ----
+const state = {
+  meta:{nom:"",prenom:"",service:"",emploi:"",
+        libelle:"JANVIER 2026",debut:"2025-12-11",fin:"2026-01-10",contrat:151.67},
+  days:{},            // 'YYYY-MM-DD' -> {start,end,pause,repas,motif,prevu}
+  manual:{hs:"",recup:""}
+};
+
+// ---- Utilitaires ----
+const $ = id => document.getElementById(id);
+function iso(d){return d.toISOString().slice(0,10);}
+function parseISO(s){const [y,m,dd]=s.split("-").map(Number);return new Date(y,m-1,dd);}
+function toMin(t){if(!t)return null;const [h,m]=t.split(":").map(Number);return h*60+m;}
+function fmt(n){return FMT.format(n);}
+function blankDay(){return {start:"",end:"",pause:0,repas:0,motif:"",prevu:""};}
+function getDay(key){if(!state.days[key])state.days[key]=blankDay();return state.days[key];}
+
+function dayTotal(d){
+  const s=toMin(d.start),e=toMin(d.end);
+  if(s==null||e==null)return 0;
+  return (e-s)/60 - (Number(d.pause)||0);
+}
+function rowFlag(d){           // "", "warn", "err"
+  const s=toMin(d.start),e=toMin(d.end);
+  if(s==null&&e==null)return "";
+  if(s==null||e==null)return "warn";       // une seule borne saisie
+  if(e<=s)return "err";                    // fin avant début
+  if((Number(d.pause)||0) >= (e-s)/60)return "warn"; // pause >= amplitude
+  return "";
+}
+
+// ---- Génération des dates groupées par semaine (lundi→dimanche) ----
+function buildWeeks(){
+  const start=parseISO(state.meta.debut), end=parseISO(state.meta.fin);
+  if(isNaN(start)||isNaN(end)||end<start)return [];
+  const days=[];
+  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)) days.push(new Date(d));
+  const weeks=[];let cur=[];
+  for(const d of days){
+    cur.push(d);
+    if(d.getDay()===0){weeks.push(cur);cur=[];}   // clôture le dimanche
+  }
+  if(cur.length)weeks.push(cur);
+  return weeks;
+}
+
+// ---- Rendu de la grille ----
+function render(){
+  // bandeau + champs
+  $("bandperiode").textContent = state.meta.libelle || "—";
+  $("bandsub").textContent = [state.meta.service,state.meta.emploi].filter(Boolean).join(" — ") || "Service insertion";
+  $("m_nom").value=state.meta.nom; $("m_prenom").value=state.meta.prenom;
+  $("m_service").value=state.meta.service; $("m_emploi").value=state.meta.emploi;
+  $("m_libelle").value=state.meta.libelle; $("m_debut").value=state.meta.debut;
+  $("m_fin").value=state.meta.fin; $("m_contrat").value=state.meta.contrat;
+  $("r_hs").value=state.manual.hs; $("r_recup").value=state.manual.recup;
+
+  const tbody=$("rows");tbody.innerHTML="";
+  const weeks=buildWeeks();
+  const optsHTML = MOTIFS.map(m=>`<option value="${m.v}">${m.l}</option>`).join("");
+
+  for(const week of weeks){
+    let wHours=0,wRepas=0;
+    for(const date of week){
+      const key=iso(date);
+      const d=getDay(key);
+      const dow=date.getDay();
+      const tot=dayTotal(d);
+      const flag=rowFlag(d);
+      wHours+=tot; wRepas+=Number(d.repas)||0;
+
+      const tr=document.createElement("tr");
+      tr.className="day"+(dow===0?" sun":"");
+      tr.dataset.key=key;
+      const totClass="total"+(tot<0?" neg":"")+(flag==="warn"?" warn":"");
+      tr.innerHTML=`
+        <td class="daycell"><span class="dow">${DOW[dow]}</span> ${date.getDate()}</td>
+        <td class="coltime"><input type="time" data-f="start" value="${d.start}"></td>
+        <td class="coltime"><input type="time" data-f="end" value="${d.end}"></td>
+        <td class="num colpause"><input type="number" step="0.25" min="0" data-f="pause" value="${d.pause||""}" placeholder="0"></td>
+        <td class="${totClass} coltot">${tot?fmt(tot):"0"}</td>
+        <td class="num colrepas"><input type="number" step="1" min="0" data-f="repas" value="${d.repas||""}" placeholder="0"></td>
+        <td class="colmotif"><select data-f="motif">${optsHTML}</select></td>
+        <td class="num colprevu"><input type="number" step="0.25" min="0" data-f="prevu" value="${d.prevu}" placeholder="—"></td>`;
+      tbody.appendChild(tr);
+      tr.querySelector('select[data-f="motif"]').value=d.motif;
+    }
+    // sous-total hebdo
+    const st=document.createElement("tr");
+    st.className="subtotal";
+    st.innerHTML=`
+      <td class="lbl">Sous-total semaine</td>
+      <td></td><td></td><td></td>
+      <td class="num">${fmt(wHours)}</td>
+      <td class="num">${fmt(wRepas)}</td>
+      <td></td><td></td>`;
+    tbody.appendChild(st);
+  }
+
+  // ligne total du mois
+  const totals=recompute();
+  const mr=document.createElement("tr");
+  mr.className="month";
+  mr.innerHTML=`
+    <td class="lbl" colspan="4">Total heures du mois</td>
+    <td class="num">${fmt(totals.month)}</td>
+    <td class="num">${fmt(totals.repas)}</td>
+    <td colspan="2"></td>`;
+  tbody.appendChild(mr);
+
+  paintRecap(totals);
+  paintStatus();
+}
+
+// ---- Calculs récap ----
+function recompute(){
+  let month=0,repas=0,ca=0,abs=0,css=0,dim=0,fer=0,amat=0,cex=0;
+  for(const [key,d] of Object.entries(state.days)){
+    const date=parseISO(key);
+    if(date<parseISO(state.meta.debut)||date>parseISO(state.meta.fin))continue;
+    const tot=dayTotal(d), dow=date.getDay(), ouvrable=(dow>=1&&dow<=6);
+    month+=tot; repas+=Number(d.repas)||0;
+    if(dow===0&&tot>0)dim+=tot;
+    switch(d.motif){
+      case "CA":  if(ouvrable)ca++; break;
+      case "MAL":
+      case "AT":  amat++; abs+=Number(d.prevu)||0; break;
+      case "FER": if(tot>0)fer+=tot; break;
+      case "CSS": css++; break;
+      case "CEX": cex++; break;
+    }
+  }
+  return {month,repas,ca,abs,css,dim,fer,amat,cex,
+          contrat:Number(state.meta.contrat)||0};
+}
+
+function paintRecap(t){
+  $("r_ca").textContent=fmt(t.ca);
+  $("r_abs").textContent=fmt(t.abs);
+  $("r_css").textContent=fmt(t.css);
+  $("r_dim").textContent=fmt(t.dim);
+  $("r_fer").textContent=fmt(t.fer);
+  $("r_amat").textContent=fmt(t.amat);
+  $("r_cex").textContent=fmt(t.cex);
+  $("r_repas").textContent=fmt(t.repas);
+
+  $("b_total").textContent=fmt(t.month);
+  $("b_contrat").textContent=fmt(t.contrat);
+  const ecart=t.month-t.contrat;
+  $("b_ecart").textContent=(ecart>0?"+":"")+fmt(ecart);
+  const box=$("ecartbox"),pill=$("ecartpill");
+  const equilibre=Math.abs(ecart)<0.01;
+  box.className="ecart "+(equilibre?"ok":"off");
+  pill.className="pill "+(equilibre?"ok":"off");
+  pill.textContent=equilibre?"à l'équilibre":(ecart>0?"au-dessus du contrat":"sous le contrat");
+}
+
+function paintStatus(){
+  const issues=[];
+  for(const [key,d] of Object.entries(state.days)){
+    const date=parseISO(key);
+    if(date<parseISO(state.meta.debut)||date>parseISO(state.meta.fin))continue;
+    const f=rowFlag(d);
+    if(f==="err")issues.push(`${DOW[date.getDay()]} ${date.getDate()} : fin avant la prise de poste.`);
+    else if(f==="warn"){
+      const s=toMin(d.start),e=toMin(d.end);
+      if(s==null||e==null)issues.push(`${DOW[date.getDay()]} ${date.getDate()} : une seule borne horaire saisie.`);
+      else issues.push(`${DOW[date.getDay()]} ${date.getDate()} : pause supérieure ou égale à l'amplitude.`);
+    }
+  }
+  const el=$("status");
+  if(issues.length===0){
+    el.className="status clean";
+    el.innerHTML=`<span class="dot"></span><span>Aucune incohérence détectée.</span>`;
+  }else{
+    el.className="status dirty";
+    el.innerHTML=`<span class="dot"></span><span>${issues.length} point(s) à vérifier</span>`+
+      `<ul>${issues.slice(0,8).map(i=>`<li>${i}</li>`).join("")}</ul>`+
+      (issues.length>8?`<span style="font-size:11px"> …et ${issues.length-8} autre(s).</span>`:"");
+  }
+}
+
+// ---- Recalcul léger sans tout reconstruire (saisie cellule) ----
+function refreshTotalsOnly(){
+  // met à jour les totaux jour affichés + sous-totaux + mois + récap + statut
+  render(); // simple et fiable ; la grille est petite
+}
+
+// ---- Événements grille ----
+$("rows").addEventListener("input",e=>{
+  const inp=e.target;const f=inp.dataset.f;if(!f)return;
+  const tr=inp.closest("tr.day");if(!tr)return;
+  const d=getDay(tr.dataset.key);
+  if(f==="pause"||f==="repas"||f==="prevu") d[f]=inp.value===""?(f==="prevu"?"":0):Number(inp.value);
+  else d[f]=inp.value;
+  // conserver le focus : on ne re-render pas tout sur chaque frappe de temps,
+  // mais on met à jour total de la ligne + agrégats
+  updateRowAndAggregates(tr);
+});
+$("rows").addEventListener("change",e=>{
+  if(e.target.dataset.f==="motif"){
+    const tr=e.target.closest("tr.day");
+    getDay(tr.dataset.key).motif=e.target.value;
+    updateAggregates();
+  }
+});
+
+function updateRowAndAggregates(tr){
+  const d=getDay(tr.dataset.key);
+  const tot=dayTotal(d);
+  const flag=rowFlag(d);
+  const cell=tr.querySelector("td.total");
+  cell.textContent=tot?fmt(tot):"0";
+  cell.className="total coltot"+(tot<0?" neg":"")+(flag==="warn"?" warn":"");
+  updateAggregates();
+}
+function updateAggregates(){
+  // sous-totaux + mois + récap + statut, sans reconstruire les <input> (préserve le focus)
+  const t=recompute();
+  paintRecap(t);
+  paintStatus();
+  // sous-totaux hebdo + ligne mois : recalcul ciblé
+  const weeks=buildWeeks();
+  const subs=document.querySelectorAll("tr.subtotal");
+  weeks.forEach((week,i)=>{
+    let h=0,r=0;
+    week.forEach(date=>{const d=getDay(iso(date));h+=dayTotal(d);r+=Number(d.repas)||0;});
+    const st=subs[i];if(!st)return;
+    st.children[4].textContent=fmt(h);
+    st.children[5].textContent=fmt(r);
+  });
+  const mr=document.querySelector("tr.month");
+  if(mr){mr.children[1].textContent=fmt(t.month);mr.children[2].textContent=fmt(t.repas);}
+}
+
+// ---- Événements méta ----
+const metaMap={m_nom:"nom",m_prenom:"prenom",m_service:"service",m_emploi:"emploi",m_libelle:"libelle"};
+Object.keys(metaMap).forEach(id=>$(id).addEventListener("input",e=>{
+  state.meta[metaMap[id]]=e.target.value;
+  $("bandperiode").textContent=state.meta.libelle||"—";
+  $("bandsub").textContent=[state.meta.service,state.meta.emploi].filter(Boolean).join(" — ")||"Service insertion";
+}));
+["m_debut","m_fin"].forEach(id=>$(id).addEventListener("change",e=>{
+  state.meta[id==="m_debut"?"debut":"fin"]=e.target.value;render();
+}));
+$("m_contrat").addEventListener("input",e=>{state.meta.contrat=Number(e.target.value)||0;updateAggregates();});
+$("r_hs").addEventListener("input",e=>{state.manual.hs=e.target.value;});
+$("r_recup").addEventListener("input",e=>{state.manual.recup=e.target.value;});
+
+// ---- Barre d'outils ----
+$("btnPrint").addEventListener("click",()=>window.print());
+
+// ---- Envoi vers le Google Sheet ----
+const round2 = n => Math.round((Number(n)||0)*100)/100;
+const num = v => v===""||v==null ? 0 : (Number(v)||0);
+
+function buildPayload(){
+  const t = recompute();
+  return { row:{
+    "Mois": state.meta.libelle,
+    "Début": state.meta.debut,
+    "Fin": state.meta.fin,
+    "Nom": state.meta.nom,
+    "Prénom": state.meta.prenom,
+    "Service": state.meta.service,
+    "Emploi": state.meta.emploi,
+    "Heures contrat": round2(t.contrat),
+    "Total mois": round2(t.month),
+    "Écart contrat": round2(t.month - t.contrat),
+    "CA (jours)": t.ca,
+    "HS à payer": num(state.manual.hs),
+    "Récup": num(state.manual.recup),
+    "Absences (h)": round2(t.abs),
+    "Congés sans solde (j)": t.css,
+    "Heures dimanche": round2(t.dim),
+    "Heures fériés": round2(t.fer),
+    "AM/AT (j)": t.amat,
+    "Congés exceptionnels (j)": t.cex,
+    "Repas": t.repas
+  }};
+}
+
+let toastTimer=null;
+function toast(msg,isErr){
+  const el=$("toast");el.textContent=msg;
+  el.className="show"+(isErr?" err":"");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.className=el.className.replace("show","").trim();},5000);
+}
+
+let sentThisSession=false;
+async function sendToSheet(){
+  if(!WEBAPP_URL){
+    toast("Envoi non configuré : renseigne WEBAPP_URL en haut du script avec l'URL /exec du web app.",true);
+    return "unconfigured";
+  }
+  if(!state.meta.nom && !state.meta.prenom &&
+     !confirm("Aucun nom de salarié saisi. Envoyer quand même ?")) return "cancelled";
+  const hasErr=Object.entries(state.days).some(([k,d])=>{
+    const date=parseISO(k);
+    return date>=parseISO(state.meta.debut)&&date<=parseISO(state.meta.fin)&&rowFlag(d)==="err";
+  });
+  if(hasErr && !confirm("Des incohérences subsistent (fin avant prise de poste). Envoyer quand même ?")) return "cancelled";
+  if(sentThisSession && !confirm("Cette fiche a déjà été envoyée pendant la session. Ajouter une 2ᵉ ligne au Sheet ?")) return "cancelled";
+  try{
+    await fetch(WEBAPP_URL,{
+      method:"POST",mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(buildPayload())
+    });
+    sentThisSession=true;
+    toast("Ligne transmise au Sheet — à vérifier dans le classeur (envoi sans accusé de réception).");
+    return "sent";
+  }catch(err){
+    toast("Échec de l'envoi : "+err,true);
+    return "error";
+  }
+}
+
+$("btnSend").addEventListener("click",async()=>{
+  const res=await sendToSheet();
+  if(res==="cancelled")return;          // l'utilisateur a renoncé → on n'imprime pas
+  setTimeout(()=>window.print(),250);   // laisse le toast s'afficher avant la boîte d'impression
+});
+
+$("btnReset").addEventListener("click",()=>{
+  if(!confirm("Effacer toutes les saisies de la grille ? L'identité et la période sont conservées."))return;
+  state.days={};state.manual={hs:"",recup:""};render();
+});
+$("btnExport").addEventListener("click",()=>{
+  // Export CSV : grille jour par jour
+  const lines=["Jour,Date,Prise de poste,Fin de poste,Pause (h),Total (h),Repas,Motif,Horaire prévu (h)"];
+  const weeks=buildWeeks();
+  weeks.forEach(week=>{
+    week.forEach(date=>{
+      const key=iso(date);
+      const d=getDay(key);
+      const dow=DOW[date.getDay()];
+      const tot=dayTotal(d);
+      const fields=[
+        dow,
+        key,
+        d.start||"",
+        d.end||"",
+        d.pause||"",
+        tot?tot.toFixed(2):"",
+        d.repas||"",
+        d.motif||"",
+        d.prevu||""
+      ];
+      lines.push(fields.map(f=>{
+        const s=String(f).trim();
+        return s.includes(",")?'"'+s.replace(/"/g,'""')+'"':s;
+      }).join(","));
+    });
+  });
+  const csv=lines.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  const slug=(state.meta.libelle||"releve").replace(/\s+/g,"_");
+  a.href=URL.createObjectURL(blob);a.download="releve_"+slug+".csv";a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+$("btnImport").addEventListener("click",()=>$("fileInput").click());
+$("fileInput").addEventListener("change",e=>{
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const lines=r.result.trim().split("\n");
+      if(lines.length<2)throw new Error("CSV vide");
+      const header=lines[0].split(",").map(h=>h.trim());
+      // Retrouver les indices des colonnes
+      const idx={
+        date:header.indexOf("Date"),start:header.indexOf("Prise de poste"),
+        end:header.indexOf("Fin de poste"),pause:header.indexOf("Pause (h)"),
+        repas:header.indexOf("Repas"),motif:header.indexOf("Motif"),
+        prevu:header.indexOf("Horaire prévu (h)")
+      };
+      if(idx.date===-1)throw new Error("Colonne 'Date' manquante");
+      state.days={};
+      for(let i=1;i<lines.length;i++){
+        const cells=parseCSVLine(lines[i]);
+        const key=cells[idx.date];
+        if(!key||!key.match(/^\d{4}-\d{2}-\d{2}$/))continue;
+        const d={
+          start:cells[idx.start]||"",
+          end:cells[idx.end]||"",
+          pause:Number(cells[idx.pause])||0,
+          repas:Number(cells[idx.repas])||0,
+          motif:cells[idx.motif]||"",
+          prevu:cells[idx.prevu]||""
+        };
+        state.days[key]=d;
+      }
+      render();
+      toast("CSV importé : "+Object.keys(state.days).length+" jours chargés.");
+    }catch(err){alert("Erreur CSV : "+err.message);}
+    e.target.value="";
+  };
+  r.readAsText(file);
+});
+
+// Parser CSV avec support guillemets
+function parseCSVLine(line){
+  const cells=[];let current="";let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQuotes&&line[i+1]==='"'){current+='"';i++;}
+      else inQuotes=!inQuotes;
+    }else if(ch===","&&!inQuotes){cells.push(current.trim());current="";}
+    else current+=ch;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+// Template CSV vierge
+$("btnTemplate").addEventListener("click",()=>{
+  const lines=["Jour,Date,Prise de poste,Fin de poste,Pause (h),Total (h),Repas,Motif,Horaire prévu (h)"];
+  const weeks=buildWeeks();
+  weeks.forEach(week=>{
+    week.forEach(date=>{
+      const key=iso(date);
+      const dow=DOW[date.getDay()];
+      lines.push([dow,key,"","","","","","",""].join(","));
+    });
+  });
+  const csv=lines.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  const slug=(state.meta.libelle||"releve").replace(/\s+/g,"_");
+  a.href=URL.createObjectURL(blob);a.download="template_"+slug+".csv";a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Template CSV généré pour la période "+state.meta.debut+" → "+state.meta.fin);
+});
+
+// ---- Init ----
+render();
+</script>
 </body>
 </html>
